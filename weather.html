@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 320px;
+    }
+    h2 {
+      margin-bottom: 15px;
+    }
+    input {
+      padding: 10px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #4facfe;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00c6fb;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .toggle {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .weather-icon {
+      margin-top: 10px;
+    }
+    .weather-icon img {
+      width: 64px;
+      height: 64px;
+    }
+    .condition-text {
+      margin-top: 5px;
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🌦 Weather App</h2>
+    <input type="text" id="locationInput" placeholder="Enter city name">
+    <br>
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div class="toggle">
+      <label><input type="radio" name="unit" value="C" checked> °C</label>
+      <label><input type="radio" name="unit" value="F"> °F</label>
+    </div>
+
+    <div id="result"></div>
+    <div class="weather-icon" id="icon"></div>
+    <div class="condition-text" id="condition"></div>
+  </div>
+
+  <script>
+    const API_KEY = "a70a3a27128c4612b9593023252309";
+
+    async function getWeather() {
+      const location = document.getElementById("locationInput").value;
+      if (!location) {
+        document.getElementById("result").innerText = "Please enter a location!";
+        return;
+      }
+
+      const url = `http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${location}&aqi=no`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Location not found");
+        const data = await response.json();
+
+        // Check selected unit
+        const unit = document.querySelector("input[name='unit']:checked").value;
+        let temp = unit === "C" ? data.current.temp_c : data.current.temp_f;
+
+        // Display temperature
+        document.getElementById("result").innerText =
+          `🌍 ${data.location.name}, ${data.location.country}\n🌡 Temperature: ${temp}°${unit}`;
+
+        // Show weather icon
+        const iconUrl = "https:" + data.current.condition.icon;
+        document.getElementById("icon").innerHTML = `<img src="${iconUrl}" alt="Weather icon">`;
+
+        // Show condition text (e.g., Sunny, Rainy)
+        document.getElementById("condition").innerText = data.current.condition.text;
+
+      } catch (error) {
+        document.getElementById("result").innerText = "Error: " + error.message;
+        document.getElementById("icon").innerHTML = "";
+        document.getElementById("condition").innerText = "";
+      }
+    }
+  </script>
+</body>
+</html>
